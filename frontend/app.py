@@ -151,7 +151,9 @@ def get_user_resources():
         return jsonify({'error': 'Not authenticated'}), 401
     
     result = APIClient.call_resource_service('/resources/user', token=token)
-    return jsonify(result) if result else jsonify({'error': 'Service unavailable'}), 503
+
+    resp = jsonify(result) if result else (jsonify({'error': 'Service unavailable'}), 503)
+    return resp
 
 @app.route('/api/admin/resources')
 def get_admin_resources():
@@ -171,7 +173,7 @@ def get_user_profile():
         return jsonify({'error': 'Not authenticated'}), 401
     
     result = APIClient.call_resource_service('/user/profile', token=token)
-    return jsonify(result) if result else jsonify({'error': 'Service unavailable'}), 503
+    return jsonify(result) if result else (jsonify({'error': 'Service unavailable'}), 503)
 
 @app.route('/api/admin/stats')
 def get_admin_stats():
