@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OAuth Troubleshoot - OAuth Demo</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .container { 
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #333; 
+            border-bottom: 2px solid #4285f4;
+            padding-bottom: 10px;
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #4285f4;
+        }
+        .error { 
+            background: #ffebee; 
+            border-left-color: #f44336; 
+        }
+        .success { 
+            background: #e8f5e8; 
+            border-left-color: #4caf50; 
+        }
+        .button {
+            background: #4285f4;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover { background: #3367d6; }
+        pre { 
+            background: #f0f0f0; 
+            padding: 10px; 
+            border-radius: 3px; 
+            overflow-x: auto; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 OAuth Troubleshooting</h1>
+        
+        <div class="debug-section">
+            <h3>Common Solutions for State Mismatch Error</h3>
+            <ol>
+                <li><strong>Clear Browser Cache & Cookies</strong> - State issues often occur due to stale sessions</li>
+                <li><strong>Check Google Cloud Console</strong> - Ensure redirect URI is exactly: <code>http://localhost:5001/auth/callback</code></li>
+                <li><strong>Use Incognito/Private Mode</strong> - Avoids cached session conflicts</li>
+                <li><strong>Check Service Status</strong> - All services must be running</li>
+            </ol>
+        </div>
+
+        <div class="debug-section">
+            <h3>Debug Information</h3>
+            <button class="button" onclick="loadDebugInfo()">Load Debug Info</button>
+            <button class="button" onclick="clearStates()">Clear OAuth States</button>
+            <pre id="debug-output">Click "Load Debug Info" to see current state</pre>
+        </div>
+
+        <div class="debug-section">
+            <h3>Test OAuth Flow</h3>
+            <button class="button" onclick="testOAuthFlow()">Test OAuth Initiation</button>
+            <div id="oauth-result"></div>
+        </div>
+
+        <div class="debug-section">
+            <h3>Service Health</h3>
+            <div id="service-status">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        async function loadDebugInfo() {
+            try {
+                const response = await fetch('http://localhost:5001/auth/debug');
+                const data = await response.json();
+                document.getElementById('debug-output').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('debug-output').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function clearStates() {
+            try {
+                const response = await fetch('http://localhost:5001/auth/clear', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                alert('OAuth states cleared. Try the login flow again.');
+                loadDebugInfo();
+            } catch (error) {
+                alert('Error clearing states: ' + error.message);
+            }
+        }
+
+        async function testOAuthFlow() {
+            try {
+                const response = await fetch('http://localhost:5001/auth/login');
+                const data = await response.json();
+                const result = document.getElementById('oauth-result');
+                if (data.auth_url) {
+                    result.innerHTML = `
+                        <div class="success">
+                            <p>✅ OAuth URL generated successfully!</p>
+                            <p><a href="${data.auth_url}" target="_blank">Click here to test OAuth flow</a></p>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = '<div class="error">❌ Failed to generate OAuth URL</div>';
+                }
+            } catch (error) {
+                document.getElementById('oauth-result').innerHTML = '<div class="error">❌ Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function checkServiceHealth() {
+            const services = [
+                { name: 'Frontend', url: 'http://localhost:3000/health' },
+                { name: 'Auth Service', url: 'http://localhost:5001/health' },
+                { name: 'Resource Service', url: 'http://localhost:5002/health' }
+            ];
+
+            let statusHtml = '';
+            for (const service of services) {
+                try {
+                    const response = await fetch(service.url);
+                    if (response.ok) {
+                        statusHtml += `<div>✅ ${service.name}: Online</div>`;
+                    } else {
+                        statusHtml += `<div>❌ ${service.name}: Offline</div>`;
+                    }
+                } catch (error) {
+                    statusHtml += `<div>❌ ${service.name}: Offline (${error.message})</div>`;
+                }
+            }
+            document.getElementById('service-status').innerHTML = statusHtml;
+        }
+
+        // Load service status on page load
+        checkServiceHealth();
+    </script>
+</body>
+</html>

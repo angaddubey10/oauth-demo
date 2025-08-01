@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - OAuth Demo</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        .login-btn { 
+            background: #4285f4; 
+            color: white; 
+            padding: 15px 30px; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .login-btn:hover { 
+            background: #3367d6; 
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(66, 133, 244, 0.3);
+        }
+        h1 { 
+            color: #333; 
+            margin-bottom: 10px; 
+            font-weight: 300;
+            font-size: 2.5em;
+        }
+        p { 
+            color: #666; 
+            margin-bottom: 30px; 
+            font-size: 1.1em;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c62828;
+        }
+        .service-status {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+        .service-status h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .service-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .service-online { background: #4caf50; }
+        .service-offline { background: #f44336; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>🚀 OAuth Demo</h1>
+        <p>Microservices Architecture Demo</p>
+        
+        {% if error %}
+        <div class="error">
+            <strong>⚠️ Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+        
+        <a href="/auth/initiate" class="login-btn">
+            🔐 Sign in with Google
+        </a>
+        
+        <div class="service-status">
+            <h3>Service Status</h3>
+            <div>
+                <span class="service-indicator service-online"></span>
+                Frontend Service
+            </div>
+            <div id="auth-status">
+                <span class="service-indicator" id="auth-indicator"></span>
+                Auth Service
+            </div>
+            <div id="resource-status">
+                <span class="service-indicator" id="resource-indicator"></span>
+                Resource Service
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check service health
+        async function checkServiceHealth() {
+            try {
+                // Check auth service
+                const authResponse = await fetch('http://localhost:5001/health');
+                const authIndicator = document.getElementById('auth-indicator');
+                if (authResponse.ok) {
+                    authIndicator.className = 'service-indicator service-online';
+                } else {
+                    authIndicator.className = 'service-indicator service-offline';
+                }
+            } catch (e) {
+                document.getElementById('auth-indicator').className = 'service-indicator service-offline';
+            }
+
+            try {
+                // Check resource service
+                const resourceResponse = await fetch('http://localhost:5002/health');
+                const resourceIndicator = document.getElementById('resource-indicator');
+                if (resourceResponse.ok) {
+                    resourceIndicator.className = 'service-indicator service-online';
+                } else {
+                    resourceIndicator.className = 'service-indicator service-offline';
+                }
+            } catch (e) {
+                document.getElementById('resource-indicator').className = 'service-indicator service-offline';
+            }
+        }
+
+        // Check health on page load
+        checkServiceHealth();
+        
+        // Refresh health check every 30 seconds
+        setInterval(checkServiceHealth, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "google_oauth": {
+    "client_id": "YOUR_GOOGLE_CLIENT_ID_HERE",
+    "client_secret": "YOUR_GOOGLE_CLIENT_SECRET_HERE",
+    "redirect_uri": "http://localhost:5001/auth/callback",
+    "auth_uri": "https://accounts.google.com/o/oauth2/v2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "scope": "openid email profile"
+  },
+  "security": {
+    "flask_secret": "your-secure-flask-secret-key-here",
+    "jwt_secret": "your-secure-jwt-secret-key-here"
+  },
+  "services": {
+    "frontend_url": "http://localhost:3000",
+    "auth_service_url": "http://localhost:5001",
+    "resource_service_url": "http://localhost:5002"
+  },
+  "user_roles": {
+    "admin@example.com": "admin",
+    "your-admin-email@gmail.com": "admin"
+  }
+}

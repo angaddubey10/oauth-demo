@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - OAuth Demo</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .dashboard-container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .content {
+            padding: 30px;
+        }
+        .user-info { 
+            background: #f8f9ff; 
+            padding: 25px; 
+            border-radius: 10px; 
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+        .user-info h2 {
+            margin-top: 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .profile-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 15px;
+            border: 3px solid #667eea;
+        }
+        .user-details {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .user-text {
+            flex: 1;
+        }
+        .user-text p {
+            margin: 5px 0;
+            color: #555;
+        }
+        .resources-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: #fff;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+        .resources-section h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.5em;
+        }
+        .role-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .admin-badge {
+            background: #dc3545;
+            color: white;
+        }
+        .user-badge {
+            background: #28a745;
+            color: white;
+        }
+        .resource-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .resource-btn {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+        .user-btn {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-color: #bbdefb;
+        }
+        .user-btn:hover {
+            background: #bbdefb;
+            transform: translateY(-2px);
+        }
+        .admin-btn {
+            background: #ffebee;
+            color: #d32f2f;
+            border-color: #ffcdd2;
+        }
+        .admin-btn:hover {
+            background: #ffcdd2;
+            transform: translateY(-2px);
+        }
+        .stats-btn {
+            background: #f3e5f5;
+            color: #7b1fa2;
+            border-color: #e1bee7;
+        }
+        .stats-btn:hover {
+            background: #e1bee7;
+            transform: translateY(-2px);
+        }
+        .users-btn {
+            background: #e8f5e8;
+            color: #388e3c;
+            border-color: #c8e6c9;
+        }
+        .users-btn:hover {
+            background: #c8e6c9;
+            transform: translateY(-2px);
+        }
+        .profile-btn {
+            background: #fff3e0;
+            color: #f57c00;
+            border-color: #ffcc02;
+        }
+        .profile-btn:hover {
+            background: #ffcc02;
+            transform: translateY(-2px);
+        }
+        .logout-btn { 
+            background: #dc3545; 
+            color: white; 
+            padding: 12px 25px; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            display: inline-block;
+            margin-top: 30px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .logout-btn:hover { 
+            background: #c82333; 
+            transform: translateY(-2px);
+        }
+        .api-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        .microservices-info {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .microservices-info h3 {
+            margin-top: 0;
+            color: #0c5460;
+        }
+        .service-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .service-item {
+            background: rgba(255,255,255,0.7);
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        #resource-data {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>🚀 Resource Dashboard</h1>
+            <p>Microservices Architecture Demo</p>
+        </div>
+        <div class="content">
+            <div class="microservices-info">
+                <h3>🏗️ Microservices Architecture</h3>
+                <p>This application demonstrates a microservices architecture with three separate services:</p>
+                <div class="service-list">
+                    <div class="service-item">
+                        <strong>Frontend Service</strong><br>
+                        Port 3000 - UI & User Experience
+                    </div>
+                    <div class="service-item">
+                        <strong>Auth Service</strong><br>
+                        Port 5001 - OAuth & JWT Management
+                    </div>
+                    <div class="service-item">
+                        <strong>Resource Service</strong><br>
+                        Port 5002 - Data & Access Control
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-info">
+                <h2>👤 User Information</h2>
+                <div class="user-details">
+                    {% if user.picture %}
+                        <img src="{{ user.picture }}" class="profile-img" alt="Profile Picture">
+                    {% else %}
+                        <div class="profile-img" style="background: #667eea; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">👤</div>
+                    {% endif %}
+                    <div class="user-text">
+                        <p><strong>Name:</strong> {{ user.name or 'N/A' }}</p>
+                        <p><strong>Email:</strong> {{ user.email or 'N/A' }}</p>
+                        <p><strong>Role:</strong> 
+                            <span style="color: {% if user.role == 'admin' %}#dc3545{% else %}#28a745{% endif %}; font-weight: bold;">
+                                {{ user.role.title() }}
+                            </span>
+                        </p>
+                        <p><strong>User ID:</strong> {{ (user.sub or 'N/A')[:20] }}...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resources-section">
+                <h3>🔐 Available Resources</h3>
+                <div class="role-badge {% if user.role == 'admin' %}admin-badge{% else %}user-badge{% endif %}">
+                    {{ user.role.title() }} Access
+                </div>
+                <div class="resource-links">
+                    <button class="resource-btn user-btn" onclick="loadUserResources()">
+                        📄 User Resources
+                    </button>
+                    {% if user.role == 'admin' %}
+                    <button class="resource-btn admin-btn" onclick="loadAdminResources()">
+                        🛡️ Admin Resources
+                    </button>
+                    <button class="resource-btn stats-btn" onclick="loadAdminStats()">
+                        📊 System Stats
+                    </button>
+                    <button class="resource-btn users-btn" onclick="loadUserManagement()">
+                        👥 User Management
+                    </button>
+                    {% endif %}
+                    <button class="resource-btn profile-btn" onclick="loadUserProfile()">
+                        👤 My Profile
+                    </button>
+                </div>
+                
+                <div id="resource-data"></div>
+            </div>
+            
+            <div class="api-note">
+                <strong>💡 Architecture Note:</strong> Each button above makes API calls to different microservices. 
+                The frontend service (port 3000) coordinates between the auth service (port 5001) and resource service (port 5002) 
+                to provide a seamless user experience while maintaining service separation.
+            </div>
+            
+            <a href="/logout" class="logout-btn">🚪 Logout</a>
+        </div>
+    </div>
+
+    <script>
+        function showLoading() {
+            document.getElementById('resource-data').innerHTML = '<div class="loading">⏳ Loading...</div>';
+            document.getElementById('resource-data').style.display = 'block';
+        }
+
+        function showError(message) {
+            document.getElementById('resource-data').innerHTML = `<div class="error">❌ Error: ${message}</div>`;
+            document.getElementById('resource-data').style.display = 'block';
+        }
+
+        function displayData(title, data) {
+            const container = document.getElementById('resource-data');
+            container.innerHTML = `
+                <h4>${title}</h4>
+                <pre style="background: white; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 0.9em;">${JSON.stringify(data, null, 2)}</pre>
+            `;
+            container.style.display = 'block';
+        }
+
+        async function loadUserResources() {
+            showLoading();
+            try {
+                const response = await fetch('/api/user/resources');
+                const data = await response.json();
+                if (response.ok) {
+                    displayData('📄 User Resources', data);
+                } else {
+                    showError(data.error || 'Failed to load user resources');
+                }
+            } catch (error) {
+                showError('Network error loading user resources');
+            }
+        }
+
+        async function loadAdminResources() {
+            showLoading();
+            try {
+                const response = await fetch('/api/admin/resources');
+                const data = await response.json();
+                if (response.ok) {
+                    displayData('🛡️ Admin Resources', data);
+                } else {
+                    showError(data.error || 'Failed to load admin resources');
+                }
+            } catch (error) {
+                showError('Network error loading admin resources');
+            }
+        }
+
+        async function loadAdminStats() {
+            showLoading();
+            try {
+                const response = await fetch('/api/admin/stats');
+                const data = await response.json();
+                if (response.ok) {
+                    displayData('📊 System Statistics', data);
+                } else {
+                    showError(data.error || 'Failed to load system stats');
+                }
+            } catch (error) {
+                showError('Network error loading system stats');
+            }
+        }
+
+        async function loadUserManagement() {
+            showLoading();
+            try {
+                const response = await fetch('/api/admin/users');
+                const data = await response.json();
+                if (response.ok) {
+                    displayData('👥 User Management', data);
+                } else {
+                    showError(data.error || 'Failed to load user management data');
+                }
+            } catch (error) {
+                showError('Network error loading user management data');
+            }
+        }
+
+        async function loadUserProfile() {
+            showLoading();
+            try {
+                const response = await fetch('/api/user/profile');
+                const data = await response.json();
+                if (response.ok) {
+                    displayData('👤 User Profile', data);
+                } else {
+                    showError(data.error || 'Failed to load user profile');
+                }
+            } catch (error) {
+                showError('Network error loading user profile');
+            }
+        }
+    </script>
+</body>
+</html>
